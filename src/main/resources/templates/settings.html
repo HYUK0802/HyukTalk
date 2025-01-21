@@ -1,0 +1,143 @@
+
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" >
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/stylesheet/style.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/reset.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/variables.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/status-bar.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/nav-bar.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/screen-header.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/user-component.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/badge.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/dot.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/icon-row.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/alt-screen-header.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/no-mobile.css}">
+
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/login.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/friends.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/find.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/more.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/settings.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/chat.css}">
+    <title>Settings - Kokoa Clone</title>
+</head>
+
+<body>
+<div class="status-bar">
+    <div class="status-bar__column">
+        <span>No Sersvice</span>
+        <i class="fa-solid fa-wifi"></i>
+    </div>
+    <div class="status-bar__column">
+        <span>18:43</span>
+    </div>
+    <div class="status-bar__column">
+        <span>110%</span>
+        <i class="fa-solid fa-battery-full fa-lg"></i>
+        <i class="fa-solid fa-bolt"></i>
+    </div>
+</div>
+
+<header class="alt-header">
+    <div class="alt-header__column">
+        <a href="more.html">
+            <i class="fa-solid fa-angle-left fa-2x"></i></a>
+    </div>
+    <div class="alt-header__column">
+        <h1 class="alt-header__title">Settings</h1>
+    </div>
+    <div class="alt-header__column">
+        <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+    </div>
+</header>
+
+<main class="main-screen">
+    <ul class="setting-list">
+        <li class="settings__setting">
+            <div class="settings__setting-column">
+                <i class="fa-solid fa-bullhorn"></i>
+                <span>Notices</span>
+            </div>
+            <div class="settings__setting-column"></div>
+        </li>
+        <li class="settings__setting">
+            <div class="settings__setting-column">
+                <i class="fa-solid fa-flask"></i>
+                <span>Kokoa Lab</span>
+            </div>
+            <div class="settings__setting-column"></div>
+        </li>
+        <li class="settings__setting">
+            <div class="settings__setting-column">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>Version</span>
+            </div>
+            <div class="settings__setting-column">
+                Latest Version
+            </div>
+        </li>
+    </ul>
+    <ul class="setting-list2">
+        <li class="settings__setting">
+            <div class="settings__setting-column">
+                <i class="fa-solid fa-user"></i>
+                <span>Account</span>
+            </div>
+            <div class="settings__setting-column">
+                ma@gmail.com
+            </div>
+        </li>
+        <li class="settings__setting">
+            <div class="settings__setting-column">
+                <i class="fa-solid fa-lock"></i>
+                <span>Security</span>
+            </div>
+            <div class="settings__setting-column"></div>
+        </li>
+        <li class="settings__setting">
+            <div class="settings__setting-column">
+                <i class="fa-solid fa-users"></i>
+                <span>friends</span>
+            </div>
+            <div class="settings__setting-column"></div>
+        </li>
+        <li class="settings__setting">
+            <div class="settings__setting-column">
+                <i class="fa-regular fa-bell"></i>
+                <span>Notification</span>
+            </div>
+            <div class="settings__setting-column"></div>
+        </li>
+        <li class="settings__setting">
+            <div class="settings__setting-column">
+                <i class="fa-solid fa-display"></i>
+                <span>Screen</span>
+            </div>
+            <div class="settings__setting-column"></div>
+        </li>
+        <li class="settings__setting">
+            <div class="settings__setting-column">
+                <i class="fa-solid fa-brush"></i>
+                <span>Theme</span>
+            </div>
+            <div class="settings__setting-column">
+                theme_text_white
+            </div>
+        </li>
+    </ul>
+</main>
+
+
+<div id="no-mobile">
+    <span>Your screen is tooo big</span>
+</div>
+
+<script src="https://kit.fontawesome.com/5c3afda2cc.js" crossorigin="anonymous"></script>
+</body>
+
+</html>

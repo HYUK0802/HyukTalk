@@ -1,0 +1,195 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f7f7f7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+/* Container simulates a phone screen */
+.container {
+    background-color: #fff;
+    width: 475px; /* Fixed smartphone width */
+    height: 852px; /* Fixed smartphone height */
+    border-radius: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Header */
+.header {
+    background-color: #fcd232;
+    color: #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header h1 {
+    font-size: 20px;
+}
+
+.header-icons .icon {
+    width: 20px;
+    margin-left: 15px;
+    cursor: pointer;
+}
+
+/* Profile Section */
+.profile-section {
+    background-color: #f1f1f1;
+    padding: 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.profile-info {
+    display: flex;
+    align-items: center;
+}
+
+.profile-pic {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.profile-details {
+    flex: 1;
+}
+
+.profile-name {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.profile-birthday {
+    font-size: 14px;
+    color: #666;
+}
+
+/* Birthday Friends Section */
+.birthday-friends {
+    padding: 10px 20px;
+    background-color: #f9f9f9;
+}
+
+.birthday-friends h3 {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.friend-list {
+    display: flex;
+    overflow-x: scroll;
+    gap: 20px;
+}
+
+.friend-item {
+    text-align: center;
+}
+
+.friend-pic {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 5px;
+}
+
+.friend-name {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+}
+
+/* Friend List (Scrollable) */
+.friend-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding-bottom: 20px;
+    overflow-y: auto; /* Enables vertical scrolling when the list exceeds the height */
+     /* Fixed height for the friend list section */
+}
+
+/* Chat List */
+.chat-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px 0;
+}
+
+.chat-item {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #ddd;
+    background-color: #fff;
+}
+
+.chat-item:hover {
+    background-color: #f2f2f2;
+}
+
+.chat-info {
+    flex: 1;
+}
+
+.chat-name {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.chat-preview {
+    font-size: 14px;
+    color: #666;
+}
+
+.chat-meta {
+    text-align: right;
+}
+
+.chat-time {
+    font-size: 12px;
+    color: #999;
+}
+
+.chat-unread {
+    display: inline-block;
+    background-color: #ff4d4d;
+    color: #fff;
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    margin-top: 5px;
+}
+
+/* For scroll behavior */
+.chat-list::-webkit-scrollbar {
+    width: 5px;
+}
+
+.chat-list::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 10px;
+}
+
+.chat-list::-webkit-scrollbar-track {
+    background-color: #f7f7f7;
+}

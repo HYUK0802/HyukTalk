@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/stylesheet/style.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/modal.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/reset.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/variables.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/status-bar.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/nav-bar.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/screen-header.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/user-component.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/badge.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/dot.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/icon-row.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/alt-screen-header.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/no-mobile.css}">
+
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/login.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/friends.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/find.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/more.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/settings.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/chat.css}">
+
+    <script defer th:src="@{/scripts/Friend.js}"></script>
+
+
+    <!--    <script defer th:src="@{/scripts/modal.js}"></script>-->
+
+    <title>Friends - Kokoa Clone</title>
+    <style>
+        .user-component__actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+}
+.hidden {
+    display:none;
+    }
+.btn {
+    padding: 5px 10px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+}
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+        /* 프로필 모달 스타일 */
+.profile-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+.profile-modal__name-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.profile-modal__edit-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: gray;
+    font-size: 16px;
+    transition: color 0.3s;
+}
+
+.profile-modal__edit-btn:hover {
+    color: black;
+}
+
+.profile-modal__input {
+    display: block;
+    margin-top: 10px;
+    padding: 5px;
+    width: 80%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+
+.profile-modal.hidden {
+    display: none;
+}
+
+.profile-modal__content {
+    background-color: #2c2c2c;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    text-align: center;
+    color: white;
+}
+
+.profile-modal__avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 20px auto;
+}
+
+.profile-modal__name {
+    font-size: 20px;
+    margin: 10px 0;
+}
+.profile-modal__actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* 버튼 사이 간격 */
+    margin-top: 20px;
+}
+.profile-modal__btn {
+    background-color: #38ba6c;
+    border: none;
+    border-radius: 50%;
+    color: white;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 18px;
+    transition: background-color 0.3s ease;
+}
+
+
+.profile-modal__btn:hover {
+    background-color: #2e9c58;
+}
+
+.profile-modal__btn--close {
+    background-color: #f44336;
+}
+
+.profile-modal__btn--close:hover {
+    background-color: #c0392b;
+}
+
+    </style>
+</head>
+<script>
+    function enableNameEdit() {
+    const nameEditContainer = document.getElementById('nameEditContainer');
+    const profileName = document.getElementById('profileName');
+    const nameInput = document.getElementById('nameInput');
+
+    nameEditContainer.classList.remove('hidden'); // 이름 입력 필드 표시
+    nameInput.value = profileName.textContent; // 기존 이름을 입력 필드에 설정
+}
+
+async function saveNameChange() {
+    const nameInput = document.getElementById('nameInput');
+    const newName = nameInput.value.trim();
+
+    if (!newName) {
+        alert("이름을 입력하세요.");
+        return;
+    }
+
+    try {
+        const response = await fetch('/profile/update-name', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ newName })
+        });
+
+        if (response.ok) {
+            // 서버에서 성공 응답을 받으면 UI 업데이트
+            document.getElementById('profileName').textContent = newName; // UI 업데이트
+            document.getElementById('nameEditContainer').classList.add('hidden'); // 입력 필드 숨기기
+            alert("이름이 성공적으로 변경되었습니다.");
+        } else {
+            const errorMessage = await response.text();
+            alert("이름 변경 실패: " + errorMessage);
+        }
+    } catch (error) {
+        console.error("이름 변경 중 오류 발생:", error);
+        alert("이름 변경 중 문제가 발생했습니다.");
+    }
+}
+
+    function openProfileModal() {
+    const modal = document.getElementById('profileModal');
+    if (modal) {
+        modal.classList.remove('hidden'); // hidden 클래스를 제거
+        modal.style.display = 'flex';    // 모달 보이기 (필요한 경우 추가)
+    } else {
+        console.error("profileModal 요소를 찾을 수 없습니다."); // 디버깅 메시지
+    }
+}
+
+function closeProfileModal() {
+    const modal = document.getElementById('profileModal');
+    if (modal) {
+        console.log("Closing profile modal..."); // 디버깅 로그
+        modal.classList.add('hidden');
+    } else {
+        console.error("Profile modal not found!");
+    }
+}
+
+
+
+
+
+    async function acceptFriendRequest(button) {
+    const requesterEmail = button.getAttribute('data-requester-email');
+        console.log("Requester Email:", requesterEmail); // 디버깅용 출력
+    if (!confirm("정말로 친구 요청을 수락하시겠습니까?")) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/friends/accept', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ requesterEmail })
+        });
+
+        if (response.ok) {
+            alert("친구 요청을 수락했습니다!");
+            location.reload();
+        } else {
+            alert("친구 요청 수락에 실패했습니다: " + (await response.text()));
+        }
+    } catch (error) {
+        console.error(error);
+        alert("서버 요청 중 문제가 발생했습니다.");
+    }
+}
+
+async function blockUser(button) {
+    const requesterEmail = button.getAttribute('data-requester-email');
+    if (!confirm("정말로 해당 사용자를 차단하시겠습니까?")) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/friends/block', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ requesterEmail })
+        });
+
+        if (response.ok) {
+            alert("해당 사용자를 차단했습니다.");
+            location.reload();
+        } else {
+            alert("사용자 차단에 실패했습니다: " + (await response.text()));
+        }
+    } catch (error) {
+        console.error(error);
+        alert("서버 요청 중 문제가 발생했습니다.");
+    }
+}
+
+// 파일 선택 필드 토글
+function toggleFileInput() {
+    const fileInputContainer = document.getElementById('fileInputContainer'); // 사진 변경 창 선택
+    if (fileInputContainer) {
+        fileInputContainer.classList.toggle('hidden'); // 표시/숨기기 토글
+    } else {
+        console.error("File input container not found!");
+    }
+}
+
+
+async function uploadProfilePicture() {
+    const fileInput = document.getElementById('profileImageInput');
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("파일을 선택하세요.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('profileImage', file);
+
+    try {
+        const response = await fetch('/profile/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            alert("프로필 사진이 성공적으로 변경되었습니다.");
+            location.reload(); // 페이지 새로고침
+        } else {
+            const errorMessage = await response.text();
+            alert("업로드 실패: " + errorMessage);
+        }
+    } catch (error) {
+        console.error("프로필 사진 업로드 중 오류 발생:", error);
+        alert("업로드 중 문제가 발생했습니다.");
+    }
+}
+
+
+</script>
+
+<body>
+
+<div class="status-bar">
+    <div class="status-bar__column">
+        <span>No Sersvice</span>
+        <i class="fa-solid fa-wifi"></i>
+    </div>
+    <div class="status-bar__column">
+        <span>18:43</span>
+    </div>
+    <div class="status-bar__column">
+        <span>110%</span>
+        <i class="fa-solid fa-battery-full fa-lg"></i>
+        <i class="fa-solid fa-bolt"></i>
+    </div>
+</div>
+
+<header class="screen-header">
+    <h1 class="screen-header__title">친구</h1>
+    <div class="screen-header__icons">
+        <!-- 검색 아이콘 클릭 시 모달 열기 -->
+        <span><i class="fa-solid fa-magnifying-glass fa-lg" onclick="openFriendModal()"></i></span>
+        <span><a th:href="@{/logout}"><i class="fa-solid fa-right-from-bracket fa-lg"></i></a></span>
+        <span><i class="fa-solid fa-gear fa-lg"></i></span>
+    </div>
+</header>
+<!-- 모달 창 -->
+<div id="friendModal" class="modal hidden">
+    <div class="modal-content">
+        <span class="close" onclick="closeFriendModal()">&times;</span>
+        <h2>친구 추가</h2>
+        <form id="addFriendForm">
+            <label for="friendEmail">
+
+            </label>
+            <input type="email" id="friendEmail" name="friendEmail" placeholder="이메일 입력" required>
+            <button type="submit">추가</button>
+        </form>
+        <p id="friendModalMessage" class="modal-message"></p>
+    </div>
+</div>
+
+<a id="friends-display-link">
+    <i class="fa-solid fa-circle-info"></i>
+    Friends' Names Display
+    <i class="fa-solid fa-chevron-right fa-xs"></i>
+</a>
+
+<main class="friends-screen">
+    <!-- 자기 프로필 -->
+    <div class="user-component" onclick="openProfileModal()">
+        <div class="user-component__column">
+            <img th:src="@{${session.user.getProfileImage()}}"
+                 class="user-component__avatar  user-component__avatar--xl">
+            <div class="user-component__text">
+                <h4 th:text="${session.user.getName()}" class="user-component__title user-component__title--not-bold"></h4>
+            </div>
+        </div>
+    </div>
+
+    <!-- 프로필 모달 -->
+    <div id="profileModal" class="profile-modal hidden">
+        <div class="profile-modal__content">
+            <!-- 프로필 이미지 -->
+            <img th:src="@{${session.user.getProfileImage()}}" class="profile-modal__avatar">
+            <!-- 이름 -->
+            <div class="profile-modal__name-container">
+                <h3 id="profileName" th:text="${session.user.getName()}" class="profile-modal__name"></h3>
+                <button class="profile-modal__edit-btn" onclick="enableNameEdit()">
+                    <i class="fa-solid fa-pen"></i>
+                </button>
+            </div>
+            <div id="nameEditContainer" class="hidden">
+                <input type="text" id="nameInput" class="profile-modal__input" placeholder="Enter new name">
+                <button class="btn btn-save" onclick="saveNameChange()">저장</button>
+            </div>
+            <!-- 버튼 영역 -->
+            <div class="profile-modal__actions">
+                <!-- 사진 변경 버튼 -->
+                <button class="profile-modal__btn" onclick="toggleFileInput()">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+                <!-- 닫기 버튼 -->
+                <button class="profile-modal__btn profile-modal__btn--close" onclick="closeProfileModal()">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <!-- 숨겨진 파일 입력 및 업로드 버튼 -->
+            <div id="fileInputContainer" class="hidden">
+                <input type="file" id="profileImageInput" accept="image/*">
+                <button class="btn btn-upload" onclick="uploadProfilePicture()">사진 업로드</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="friends-screen__channel">
+        <div class="friends-screen__chnnel-header">
+            <span>친구 요청</span>
+            <i class="fa-solid fa-chevron-up fa-xs"></i>
+        </div>
+
+        <!-- 친구 요청 목록 -->
+        <div class="user-component" th:each="request : ${friendRequests}">
+            <!-- 숨겨진 필드에 사용자 정보 저장 -->
+            <input type="hidden" name="requesterEmail" th:value="${request.requesterEmail}" />
+            <input type="hidden" name="status" th:value="${request.status}" />
+
+            <div class="user-component__column">
+                <!-- 프로필 이미지 -->
+                <img th:src="@{${request.profileImage}}" class="user-component__avatar user-component__avatar--sm">
+
+                <div class="user-component__text">
+                    <!-- 요청한 유저의 이름 -->
+                    <h4 class="user-component__title" th:text="${request.name}">Friend Name</h4>
+                    <!-- 추가 정보 (예: 요청 시간) -->
+                    <h6 class="user-component__subtitle" th:text="${request.requestedAtFormatted}">요청 시간</h6>
+                </div>
+
+                <!-- 친구 요청 상태에 따라 처리 -->
+                <div class="user-component__actions">
+                    <!-- 상태가 PENDING이면 "친구 요청 대기중"만 표시 -->
+                    <span th:if="${request.status == 'REQUEST'}" class="text-muted">친구 요청 대기중</span>
+
+                    <!-- 상태가 REQUEST이면 버튼 표시 -->
+                    <div th:if="${request.status == 'PENDING'}">
+                        <button class="btn btn-primary" th:attr="data-requester-email=${request.requesterEmail}" onclick="acceptFriendRequest(this)">수락</button>
+                        <button class="btn btn-danger" th:attr="data-requester-email=${request.requesterEmail}" onclick="blockUser(this)">차단</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="friends-screen__channel">
+        <div class="friends-screen__chnnel-header">
+            <span>생일인 친구</span>
+            <i class="fa-solid fa-chevron-up fa-xs"></i>
+        </div>
+        <div class="user-component" th:each="friendsBirth : ${friendsBirth}">
+            <input type="hidden" name="userEmail" th:value="${session.userEmail}" />
+            <input type="hidden" name="friendBirthEmail" th:value="${friendsBirth.userEmail}" />
+            <div class="user-component__column" onclick="startChat(this)">
+                <img th:src="@{${friendsBirth.profileImage}}" class="user-component__avatar user-component__avatar--sm">
+                <div class="user-component__text">
+                    <h4 class="user-component__title" th:text="${friendsBirth.name}">Friend Birth Name</h4>
+                    <h6 class="user-component__subtitle"
+                        th:text="${#dates.format(friendsBirth.birth, '오는 MM월 dd일')}"></h6>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="friends-screen__channel">
+        <div class="friends-screen__chnnel-header">
+            <span th:text="'친구 ' + ${friendCount}"></span>
+            <i class="fa-solid fa-chevron-up fa-xs"></i>
+        </div>
+        <!-- 일반 친구 리스트 -->
+        <div th:each="friend : ${friends}" class="user-component">
+            <input type="hidden" name="userEmail" th:value="${session.userEmail}" />
+            <input type="hidden" name="friendEmail" th:value="${friend.userEmail}" />
+            <div class="user-component__column" onclick="startChat(this)">
+                <img th:src="@{${friend.profileImage}}" alt="Friend Profile Image" class="user-component__avatar user-component__avatar--sm">
+
+                <div class="user-component__text">
+                    <h4 class="user-component__title" th:text="${friend.name}">Friend Name</h4>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</main>
+
+
+
+
+<nav class="nav">
+    <ul class="nav__list">
+        <li class="nav__btn">
+            <a class="nav__link" th:href="@{/friends}"><i class="fa-solid fa-user fa-2x"></i></a>
+        </li>
+        <li class="nav__btn">
+            <a class="nav__link" th:href="@{/chats}">
+                <span class="nav__notification badge"></span>
+                <i class="fa-solid fa-clover fa-2x"></i></a>
+        </li>
+        <li class="nav__btn">
+            <a class="nav__link" href="find.html"><i class="fa-solid fa-magnifying-glass fa-2x"></i></a>
+        </li>
+        <li class="nav__btn">
+            <a class="nav__link" href="more.html">
+                <div class="nav__dot dot"></div>
+                <i class="fa-solid fa-ellipsis fa-2x"></i>
+            </a>
+        </li>
+    </ul>
+</nav>
+<div id="splash-screen">
+    <i class="fa-solid fa-clover"></i>
+</div>
+<div id="no-mobile">
+    <span>Your screen is tooo big</span>
+</div>
+
+<script src="https://kit.fontawesome.com/5c3afda2cc.js" crossorigin="anonymous"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" >
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/stylesheet/style.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/reset.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/variables.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/status-bar.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/nav-bar.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/screen-header.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/user-component.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/badge.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/dot.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/icon-row.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/alt-screen-header.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/no-mobile.css}">
+
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/login.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/friends.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/find.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/more.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/settings.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/chat.css}">
+    <title>More - Kokoa Clone</title>
+</head>
+
+<body>
+<div class="status-bar">
+    <div class="status-bar__column">
+        <span>No Sersvice</span>
+        <i class="fa-solid fa-wifi"></i>
+    </div>
+    <div class="status-bar__column">
+        <span>18:43</span>
+    </div>
+    <div class="status-bar__column">
+        <span>110%</span>
+        <i class="fa-solid fa-battery-full fa-lg"></i>
+        <i class="fa-solid fa-bolt"></i>
+    </div>
+</div>
+
+<header class="screen-header">
+    <h1 class="screen-header__title">내 정보</h1>
+</header>
+
+<main class="main-screen more-screen">
+    <div class="user-component">
+        <div class="user-component__column">
+            <img th:src="@{${session.user.getProfileImage()}}" class="user-component__avatar user-component__avatar--xl">
+            <div class="user-component__text">
+                <h4 class="user-component__title" th:text="${session.user.getName()}">Makima</h4>
+                <div>
+                    <h6 class="user-component__subtitle" th:text="${session.user.email}"></h6>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="icon-row">
+        <div class="icon-row__icon">
+            <i class="fa-regular fa-calendar"></i>
+            <span>프로필 사진 변경</span></div>
+        <div class="icon-row__icon">
+            <i class="fa-regular fa-face-kiss-wink-heart"></i>
+            <span>이메일 변경</span></div>
+        <div class="icon-row__icon">
+            <i class="fa-solid fa-paint-roller"></i>
+            <span>닉네임 변경</span></div>
+        <div class="icon-row__icon">
+            <i class="fa-solid fa-file-invoice-dollar"></i>
+            <span>개발중</span></div>
+    </div>
+    <div class="more-suggestions">
+        <h4 class="more-suggestions__title">나의 일정(개발중)</h4>
+    </div>
+</main>
+
+
+
+
+<nav class="nav">
+    <ul class="nav__list">
+        <li class="nav__btn">
+            <a class="nav__link" href="friends.html">
+                <i class="fa-regular fa-user fa-2x"></i></a>
+        </li>
+        <li class="nav__btn">
+            <a class="nav__link" href="chats.html">
+                <span class="nav__notification badge">2</span>
+                <i class="fa-solid fa-clover fa-2x"></i></a>
+        </li>
+        <li class="nav__btn">
+            <a class="nav__link" href="find.html"><i class="fa-solid fa-magnifying-glass fa-2x"></i></a>
+        </li>
+        <li class="nav__btn">
+            <a class="nav__link" href="more.html">
+                <div class="nav__dot dot"></div><i class="fa-solid fa-ellipsis fa-2x"></i>
+            </a>
+        </li>
+    </ul>
+</nav>
+<div id="no-mobile">
+    <span>Your screen is tooo big</span>
+</div>
+
+<script src="https://kit.fontawesome.com/5c3afda2cc.js" crossorigin="anonymous"></script>
+</body>
+
+</html>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hyuk.side.mappers.MessageMapper">
+    <!-- 메시지 삽입 -->
+    <insert id="insertMessage">
+        INSERT INTO `hyuktalk`.`messages` (chat_room_id, sender_email, content, message_type, file_path, created_at)
+        VALUES (#{chatRoomId}, #{senderEmail}, #{content}, #{messageType}, #{filePath}, NOW());
+    </insert>
+
+    <!-- 채팅방 ID로 메시지 조회 -->
+    <select id="getMessagesByChatRoomId" parameterType="String" resultType="com.hyuk.side.entities.MessageEntity">
+        SELECT
+        m.message_id AS messageId,
+        m.chat_room_id AS chatRoomId,
+        m.sender_email AS senderEmail,
+        u.name AS senderName, <!-- 보낸 사람의 이름 -->
+        u.profile_image AS senderProfileImage, <!-- 보낸 사람의 프로필 이미지 -->
+        m.content,
+        JSON_EXTRACT(m.read_by_users, '$') AS readByUsers,
+        m.message_type AS messageType,
+        m.file_path AS filePath,
+        m.created_at AS createdAt,
+        DATE(m.created_at) AS messageDate <!-- 날짜 부분 -->
+        FROM
+        `hyuktalk`.`messages` m
+        LEFT JOIN
+        `hyuktalk`.`users` u ON m.sender_email = u.email
+        WHERE
+        m.chat_room_id = #{chatRoomId}
+        ORDER BY
+        m.created_at ASC
+    </select>
+    <update id="markMessagesAsRead">
+        UPDATE `hyuktalk`.messages
+        SET `read` = TRUE
+        WHERE chat_room_id = #{chatRoomId}
+        AND `read` = FALSE
+        AND sender_email != #{userEmail}; <!-- 내가 보낸 메시지가 아닌 것만 -->
+    </update>
+
+    <select id="countUnreadMessages" resultType="int">
+        SELECT COUNT(*)
+        FROM `hyuktalk`.messages
+        WHERE chat_room_id = #{chatRoomId}
+        AND sender_email != #{userEmail} <!-- 내가 보낸 메시지가 아닌 것만 -->
+        AND `read` = FALSE;
+    </select>
+
+    <update id="updateMessageReadStatus">
+        UPDATE `hyuktalk`.`messages`
+        SET read_by_users = JSON_INSERT(
+        COALESCE(read_by_users, JSON_ARRAY()),
+        CONCAT('$[', JSON_LENGTH(read_by_users), ']'),
+        'testUser@example.com'
+        )
+        WHERE chat_room_id = 'room1'
+        AND message_id = 1
+        AND (read_by_users IS NULL OR NOT JSON_CONTAINS(read_by_users, JSON_QUOTE('testUser@example.com')));
+
+    </update>
+
+
+</mapper>

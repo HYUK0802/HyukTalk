@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@100;300;400;600&display=swap');
+@import "reset.css";
+@import "variables.css";
+
+/* Components */
+/*@import url("./status-bar.css");
+@import "/stylesheet/components/status-bar.css";
+@import "components/nav-bar.css";
+@import "components/screen-header.css";
+@import "components/user-component.css";
+@import "components/badge.css";
+@import "components/dot.css";
+@import "components/icon-row.css";
+@import "components/alt-screen-header.css";
+@import "components/no-mobile.css";
+
+/* Screens */
+/*@import "stylesheet/screens/login.css";
+@import "screens/friends.css";
+@import "screens/find.css";
+@import "screens/more.css";
+@import "screens/settings.css";
+@import "screens/chat.css";*/
+
+
+body{
+    font-family: "IBM Plex Mono", monospace;
+    background-color: var(--deep-dark);
+    color : var(--white);
+}
+.main-screen{
+    padding : 0 var(--horizontal-space);
+}

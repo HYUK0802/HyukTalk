@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hyuk.side.mappers.ChatMapper">
+
+
+
+
+
+
+
+<!--채팅방 가져오기-->
+    <select id="getChatRoomById" parameterType="String" resultType="com.hyuk.side.entities.ChatRoomsEntity">
+        SELECT * FROM `hyuktalk`.`chat_rooms` WHERE `chat_room_id` = #{chatRoomId};
+    </select>
+<!--채팅방 생성-->
+    <insert id="createChatRoom" parameterType="com.hyuk.side.entities.ChatRoomsEntity">
+        INSERT INTO `hyuktalk`.`chat_rooms` (chat_room_id, type, name, description, created_at)
+        VALUES (#{chatRoomId}, #{type}, #{name}, #{description}, NOW());
+    </insert>
+<!--&lt;!&ndash;    멤버 이미 만들어진지 확인&ndash;&gt;-->
+<!--    <select id="checkUserInChatRoom" resultType="int">-->
+<!--        SELECT COUNT(*)-->
+<!--        FROM `hyuktalk`.`chat_room_members`-->
+<!--        WHERE chat_room_id = #{chatRoomId} AND user_email = #{userEmail}-->
+<!--    </select>-->
+<!--    대화창에서 친구 불러오기-->
+    <select id="getFriendEmail" resultType="string">
+        SELECT `user_email` AS `userEmail`
+        FROM `hyuktalk`.`chat_room_members`
+        WHERE chat_room_id = #{chatRoomId} AND user_email != #{userEmail}
+        LIMIT 1
+    </select>
+    <!-- 중복 확인 -->
+    <select id="existsByChatRoomIdAndUserEmail" parameterType="map" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM `hyuktalk`.`chat_room_members`
+        WHERE chat_room_id = #{chatRoomId} AND user_email = #{userEmail};
+    </select>
+<!--    채팅방 멤버추가-->
+    <insert id="addUserToChatRoom" parameterType="com.hyuk.side.entities.ChatRoomMembersEntity">
+        INSERT INTO `hyuktalk`.`chat_room_members` (chat_room_id, user_email, joined_at, is_active)
+        VALUES (#{chatRoomId}, #{userEmail},#{joinedAt},1);
+    </insert>
+<!--    채팅방 나가기 -->
+    <update id="deactivateMember" parameterType="map">
+        UPDATE `hyuktalk`.`chat_room_members`
+        SET is_active = 0
+        WHERE chat_room_id = #{chatRoomId} AND user_email = #{userEmail};
+    </update>
+<!--    채팅방 다시 참여-->
+    <update id="activateMember" parameterType="map">
+        UPDATE `hyuktalk`.`chat_room_members`
+        SET is_active = 1, joined_at = NOW()
+        WHERE chat_room_id = #{chatRoomId} AND user_email = #{userEmail};
+    </update>
+    <select id="getUserInfo" resultType="com.hyuk.side.entities.UserEntity">
+        SELECT
+        `email` AS `email`,
+        `pwd` AS `pwd`,
+        `name` AS `name`,
+        `phone` AS `phone`,
+        `status` AS `status`,
+        `register_at` AS `registerAt`,
+        `profile_image` AS `profileImage`,
+        `birth` AS `birth`
+        FROM `hyuktalk`.`users`
+        WHERE email = #{email}
+    </select>
+
+<!--    그룹 대화 이름 불러오기-->
+    <select id="getParticipantNames" parameterType="String" resultType="String">
+        SELECT u.name
+        FROM `hyuktalk`.`chat_room_members` crm
+        JOIN `hyuktalk`.`users` u ON crm.user_email = u.email
+        WHERE crm.chat_room_id = #{chatRoomId}
+    </select>
+
+
+    <select id="getChatRoomsByUser" resultType="com.hyuk.side.entities.ChatRoomsEntity">
+        SELECT
+        cr.chat_room_id AS chatRoomId,
+        cr.type AS type,
+        cr.created_at AS createdAt,
+        -- 로그인한 유저 제외하고 친구들의 이름과 프로필 이미지 처리
+        GROUP_CONCAT(CASE WHEN u.email != #{userEmail} THEN u.name END SEPARATOR ', ') AS friendNames,
+        -- 단체톡일 경우 첫 번째 프로필 이미지만 가져오기
+        (SELECT u.profile_image
+        FROM `hyuktalk`.`chat_room_members` crm
+        JOIN `hyuktalk`.`users` u ON crm.user_email = u.email
+        WHERE crm.chat_room_id = cr.chat_room_id AND u.email != #{userEmail}
+        LIMIT 1) AS profileImage,
+        (
+        SELECT content
+        FROM `hyuktalk`.`messages` m
+        WHERE m.chat_room_id = cr.chat_room_id
+        ORDER BY m.created_at DESC
+        LIMIT 1
+        ) AS lastMessage,
+        (
+        SELECT created_at
+        FROM `hyuktalk`.`messages` m
+        WHERE m.chat_room_id = cr.chat_room_id
+        ORDER BY m.created_at DESC
+        LIMIT 1
+        ) AS lastUpdated,
+        (
+        SELECT COUNT(*)
+        FROM `hyuktalk`.`messages` m
+        WHERE m.chat_room_id = cr.chat_room_id
+        AND m.sender_email != #{userEmail}
+        AND m.read = 0
+        ) AS unreadCount
+        FROM
+        `hyuktalk`.`chat_rooms` cr
+        LEFT JOIN
+        `hyuktalk`.`chat_room_members` crm ON cr.chat_room_id = crm.chat_room_id
+        LEFT JOIN
+        `hyuktalk`.`users` u ON crm.user_email = u.email
+        WHERE
+        crm.chat_room_id IN (
+        SELECT crm2.chat_room_id
+        FROM `hyuktalk`.`chat_room_members` crm2
+        WHERE crm2.user_email = #{userEmail}
+        AND crm2.is_active = 1 -- 사용자가 활성 상태인 대화방만 포함
+        )
+        GROUP BY
+        cr.chat_room_id
+        ORDER BY
+        lastUpdated DESC;
+    </select>
+
+    <update id="updateIsActive">
+        UPDATE `hyuktalk`.`chat_room_members`
+        SET is_active = 0
+        WHERE user_email = #{userEmail}
+        AND chat_room_id = #{chatRoomId};
+    </update>
+    <update id="reactivateUserInChatRoom">
+        UPDATE `hyuktalk`.`chat_room_members`
+        SET is_active = 1
+        WHERE user_email = #{userEmail}
+        AND chat_room_id = #{chatRoomId};
+    </update>
+    <select id="checkIfMemberExists" resultType="boolean">
+        SELECT EXISTS (
+        SELECT 1
+        FROM `hyuktalk`.`chat_room_members`
+        WHERE user_email = #{userEmail}
+        AND chat_room_id = #{chatRoomId}
+        )
+    </select>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</mapper>

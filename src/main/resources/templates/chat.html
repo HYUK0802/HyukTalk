@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/stylesheet/style.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/modal.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/reset.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/variables.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/status-bar.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/nav-bar.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/screen-header.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/user-component.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/badge.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/dot.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/icon-row.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/alt-screen-header.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/no-mobile.css}">
+
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/login.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/friends.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/find.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/more.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/settings.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/chat.css}">
+    <script defer th:src="@{/scripts/Chat.js}"></script>
+
+    <title>Chat with Power - Kokoa Clone</title>
+    <style>
+        /* 전체 페이지의 높이를 100%로 설정하여 페이지 자체 스크롤을 방지 */
+        html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow : hidden;
+        }
+        /* 다운로드 버튼 스타일 */
+        .download-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            color: #333;
+        }
+
+        .download-btn:hover {
+            background-color: rgba(255, 255, 255, 1);
+            transform: scale(1.1);
+        }
+
+
+
+        /* 모달 이미지 컨테이너 */
+        .modal-image-container {
+            position: relative;
+            margin: auto;
+            display: inline-block;
+            max-width: 90%;
+            max-height: 90vh;
+        }
+        .modal {
+        display: flex;
+        position: fixed;
+        z-index: 1000;
+        padding-top: 50px;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.9);
+        overflow: auto;
+    }
+
+    .modal-content {
+        margin: auto;
+        display: block;
+        max-width: 90%;
+        max-height: 90vh;
+        object-fit: contain;
+    }
+
+    .close {
+        position: absolute;
+        right: 25px;
+        top: 10px;
+        color: #f1f1f1;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .close:hover,
+    .close:focus {
+        color: #bbb;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    /* 확대 가능한 이미지에 커서 포인터 추가 */
+    .enlargeable-image {
+        cursor: pointer;
+        transition: opacity 0.3s;
+    }
+
+    .enlargeable-image:hover {
+        opacity: 0.8;
+    }
+
+    /* 모바일 반응형 */
+    @media only screen and (max-width: 700px) {
+        .modal-content {
+            width: 100%;
+        }
+    }
+
+    #chat-container {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        position:hidden;
+    }
+}
+
+
+    #chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        display: flex;
+        flex-direction: column-reverse; /* 메시지 목록을 맨 아래부터 표시 */
+        margin-bottom: 60px; /* 메시지 입력란을 고려한 여백 */
+
+    }
+
+    .reply {
+        position: fixed; /* 화면에 고정 */
+        bottom: 0; /* 화면 맨 아래로 고정 */
+        left: 0;
+        width: 100%; /* 전체 너비 */
+        background-color: #2c2c2c;
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        z-index: 10; /* 다른 요소 위에 위치 */
+        border-top: 1px solid #444;
+    }
+
+    .reply__column {
+        display: flex;
+        align-items: center;
+    }
+
+    .reply input {
+        flex: 1;
+        padding: 10px;
+        border-radius: 25px;
+        border: none;
+        margin-right: 10px;
+        background-color: #333;
+        color: white;
+    }
+
+    .reply button {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+    }
+    </style>
+
+</head>
+
+
+<body id="chat-screen">
+<div class="status-bar status-bar-chat"></div>
+
+<header class="alt-header alt-header-chat">
+    <div class="alt-header__column">
+        <a th:href="@{/chats}">
+            <i class="fa-solid fa-angle-left fa-2x"></i>
+        </a>
+        <input type="hidden" id="current-chat-room-id" th:value="${chatRoomId}">
+
+    </div>
+    <div class="alt-header__column">
+        <h1 class="alt-header__title"
+            th:text="${chatFriend}">
+            Group Members
+        </h1>
+    </div>
+    <div class="alt-header__column">
+        <h1 class="alt-header__title"
+            th:text="${friendName}">
+
+        </h1>
+    </div>
+
+    <div class="alt-header__column">
+        <span><i class="fa-solid fa-right-from-bracket fa-lg" th:onclick="leaveChatRoom(this)" th:data-chat-room-id="${chatRoomId}"></i></span>
+
+
+    </div>
+</header>
+
+<main class="main-screen main-chat" id="chat-container">
+    <!-- 메시지 목록 -->
+    <div id="chat-messages">
+        <!-- 메시지가 없는 경우 -->
+        <div th:if="${#lists.isEmpty(messages)}">
+            <p>현재 메시지가 없습니다.</p>
+        </div>
+
+        <!-- 메시지가 있는 경우 -->
+        <div th:each="message, iterStat : ${messages}">
+            <!-- 날짜가 바뀌었는지 확인 -->
+            <div class="chats__timestamp" th:if="${iterStat.index == 0 || #dates.format(message.messageDate, 'yyyy-MM-dd') != #dates.format(messages[iterStat.index - 1].messageDate, 'yyyy-MM-dd')}">
+                <span th:text="${#dates.format(message.messageDate, 'EEEE, MMMM dd, yyyy')}">Tuesday, June 30, 2024</span>
+            </div>
+
+            <!-- 상대방 메시지 -->
+            <div class="message-row message-row__you" th:if="${message.senderEmail != userEmail}">
+                <img th:src="@{${message.senderProfileImage}}" alt="Profile" class="message__profile">
+                <div class="message-row__content">
+                    <span th:text="${message.senderName}" class="message__autor">Sender Name</span>
+                    <div class="message__info">
+                        <span th:if="${message.messageType == 'TEXT'}" th:text="${message.content}" class="message__bubble"></span>
+                        <img th:if="${message.messageType == 'IMAGE'}"
+                             th:src="@{${message.filePath}}"
+                             class="message__image message__image--fixed enlargeable-image"
+                             alt="Sent Image"
+                             th:onclick="openModal(this.src)">
+                        <span th:text="${#dates.format(message.createdAt, 'HH:mm')}" class="message__time"></span>
+                        <!-- 읽음 상태 -->
+                        <span th:if="${message.readByUsers != null and #lists.size(message.readByUsers) > 0}"
+                              class="message__read-status"
+                              th:text="'읽음: ' + #strings.arrayJoin(message.readByUsers, ', ')">읽음 표시</span>
+                        <span th:if="${message.readByUsers == null or #lists.size(message.readByUsers) == 0}"
+                              class="message__unread-status">안 읽음</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 본인 메시지 -->
+            <div class="message-row message-row__own" th:if="${message.senderEmail == userEmail}">
+                <div class="message-row__content">
+                    <div class="message__info">
+                        <span th:if="${message.messageType == 'TEXT'}" th:text="${message.content}" class="message__bubble"></span>
+                        <img th:if="${message.messageType == 'IMAGE'}"
+                             th:src="@{${message.filePath}}"
+                             class="message__image message__image--fixed enlargeable-image"
+                             alt="Sent Image"
+                             th:onclick="openModal(this.src)">
+                        <span th:text="${#dates.format(message.createdAt, 'HH:mm')}" class="message__time"></span>
+                        <!-- 읽음 상태 추가 -->
+                        <span th:if="${message.readByUsers?.size() > 0}"
+                              class="message__read-status"
+                              th:text="'읽음: ' + #strings.arrayJoin(message.readByUsers, ', ')">읽음 표시</span>
+                        <span th:if="${message.readByUsers?.size() == 0}"
+                              class="message__unread-status">안 읽음</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+
+    <div id="imageModal" class="modal" style="display: none;">
+        <span class="close">&times;</span>
+        <div class="modal-image-container">
+            <img id="modalImage" class="modal-content">
+            <button class="download-btn" onclick="downloadImage()">
+                <i class="fa-solid fa-download"></i>
+            </button>
+        </div>
+    </div>
+
+<form id="chat-form" class="reply" th:data-chat-room-id="${chatRoomId}" method="post">
+    <div class="reply__column">
+        <i class="fa-regular fa-square-plus fa-lg"></i>
+    </div>
+    <div class="reply__column">
+        <input id="message-content" type="text" name="content" placeholder="Type a message..." required>
+        <button type="submit"><i class="fa-solid fa-arrow-up"></i></button>
+    </div>
+</form>
+
+    <script th:inline="javascript">
+        // 페이지 로드 시, 채팅 메시지가 있을 경우 마지막 메시지로 스크롤
+        window.addEventListener('DOMContentLoaded', () => {
+        const chatMessages = document.getElementById('chat-messages');
+        chatMessages.scrollTop = chatMessages.scrollHeight; // 스크롤을 맨 밑으로 이동
+});
+
+        // 새로운 메시지가 추가될 때마다 스크롤을 맨 밑으로 자동으로 이동
+        document.getElementById('chat-form').addEventListener('submit', (e) => {
+        e.preventDefault(); // 폼 제출 방지 (Ajax 등으로 처리하려면 여기에서 진행)
+
+        // 폼 제출 후 스크롤을 맨 밑으로 이동
+        const chatMessages = document.getElementById('chat-messages');
+        setTimeout(() => {
+        chatMessages.scrollTop = chatMessages.scrollHeight; // 스크롤을 맨 밑으로 이동
+        }, 100); // 메시지가 전송된 후에 스크롤 조정
+});
+        // 모달 요소
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        const closeBtn = document.getElementsByClassName('close')[0];
+
+        // 기존 openModal 함수 수정
+        function openModal(imgSrc) {
+        modal.style.display = 'flex';
+        modalImg.src = imgSrc;
+        document.body.style.overflow = 'hidden';
+        }
+
+        // 닫기 버튼 클릭시 모달 닫기
+        closeBtn.onclick = function() {
+            closeModal();
+        }
+
+        // 모달 바깥 영역 클릭시 닫기
+        modal.onclick = function(event) {
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // 모달 닫기 함수
+        function closeModal() {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto'; // 배경 스크롤 다시 활성화
+        }
+
+        // 페이지 로드 완료 후 이미지 클릭 이벤트 추가
+        document.addEventListener('DOMContentLoaded', function() {
+            const images = document.querySelectorAll('.enlargeable-image');
+            images.forEach(img => {
+                img.addEventListener('click', function() {
+                    openModal(this.src);
+                });
+            });
+        });
+        // 이미지 다운로드 함수
+function downloadImage() {
+    const imageUrl = document.getElementById('modalImage').src;
+
+    // 파일명 추출 (URL의 마지막 부분을 사용)
+    const fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+
+    fetch(imageUrl)
+        .then(response => response.blob())
+        .then(blob => {
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = fileName; // 다운로드될 파일명
+
+            document.body.appendChild(a);
+            a.click();
+
+            // cleanup
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        })
+        .catch(error => {
+            console.error('이미지 다운로드 중 오류 발생:', error);
+            alert('이미지 다운로드에 실패했습니다.');
+        });
+}
+  async function leaveChatRoom(element) {
+    const chatRoomId = element.getAttribute('data-chat-room-id');
+    console.log("ChatRoomId to leave:", chatRoomId); // 디버깅용 로그
+
+    if (!chatRoomId) {
+        alert("ChatRoomId를 가져올 수 없습니다!");
+        return;
+    }
+
+    if (!confirm("이 방에서 나가시겠습니까?")) {
+        return;
+    }
+
+    try {
+        const response = await fetch('/chat/leave', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ chatRoomId }),
+        });
+
+        if (response.ok) {
+            alert("대화방에서 나갔습니다.");
+            window.location.href = '/chats';
+        } else {
+            const errorMessage = await response.text();
+            alert("방 나가기에 실패했습니다: " + errorMessage);
+        }
+    } catch (error) {
+        console.error("Error leaving chat room:", error);
+        alert("서버 요청 중 문제가 발생했습니다.");
+    }
+}
+        async function markMessagesAsRead(chatRoomId) {
+    try {
+        const response = await fetch(`/chat/${chatRoomId}/markAsRead`, {
+            method: 'POST',
+        });
+
+        if (!response.ok) {
+            console.error("Failed to mark messages as read");
+        }
+    } catch (error) {
+        console.error("Error marking messages as read:", error);
+    }
+}
+
+// 채팅방 진입 시 읽음 처리
+document.addEventListener('DOMContentLoaded', () => {
+    const chatRoomId = document.getElementById('current-chat-room-id').value;
+    markMessagesAsRead(chatRoomId);
+});
+        async function updateUnreadCount(chatRoomId) {
+    const response = await fetch(`/chat/${chatRoomId}/unreadCount`);
+    const unreadCount = await response.json();
+    document.querySelector('.badge').textContent = unreadCount;
+}
+
+
+
+
+    </script>
+    <script src="https://kit.fontawesome.com/5c3afda2cc.js" crossorigin="anonymous"></script>
+
+</body>
+</html>

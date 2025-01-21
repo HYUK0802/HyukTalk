@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hyuk.side.mappers.UserMapper">
+    <select id="selectEmail" resultType="com.hyuk.side.entities.UserEntity">
+        SELECT `email` AS `email`,
+        `pwd` AS `pwd`,
+        `name` AS `name`,
+        `phone` AS `phone`,
+        `status` AS `status`,
+        `register_at` AS `registerAt`,
+        `profile_image` AS `profileImage`,
+        `birth` AS `birth`
+        FROM `hyuktalk`.`users`
+        WHERE BINARY `email` = #{email}
+        LIMIT 1
+    </select>
+    <select id="selectPwd" resultType="com.hyuk.side.entities.UserEntity">
+        SELECT `email` AS `email`,
+        `pwd` AS `pwd`,
+        `name` AS `name`,
+        `phone` AS `phone`,
+        `status` AS `status`,
+        `register_at` AS `registerAt`,
+        `profile_image` AS `profileImage`,
+        `birth` AS `birth`
+        FROM `hyuktalk`.`users`
+        WHERE BINARY `pwd` = #{pwd}
+    </select>
+    <select id="selectPhone" resultType="com.hyuk.side.entities.UserEntity">
+        SELECT `email` AS `email`,
+        `pwd` AS `pwd`,
+        `name` AS `name`,
+        `phone` AS `phone`,
+        `status` AS `status`,
+        `register_at` AS `registerAt`,
+        `profile_image` AS `profileImage`,
+        `birth` AS `birth`
+        FROM `hyuktalk`.`users`
+        WHERE BINARY `phone` = #{phone}
+    </select>
+
+    <select id="selectEmailPwd" resultType="com.hyuk.side.entities.UserEntity">
+        SELECT `email` AS `email`,
+        `pwd` AS `pwd`,
+        `name` AS `name`,
+        `phone` AS `phone`,
+        `status` AS `status`,
+        `register_at` AS `registerAt`,
+        `profile_image` AS `profileImage`,
+        `birth` AS `birth`
+        FROM `hyuktalk`.`users`
+        WHERE BINARY `email` = #{email}
+        AND BINARY `password` = #{password}
+    </select>
+
+    <insert id="insertUser" parameterType="com.hyuk.side.entities.UserEntity">
+        INSERT INTO `hyuktalk`.`users` (`email`,`pwd`,`name`,`phone`,`status`,`register_at`,`profile_image`,`birth`)
+        VALUES (
+        #{email},
+        #{pwd},
+        #{name},
+        #{phone},
+        #{status},
+        IFNULL(#{registerAt}, CURRENT_TIMESTAMP),
+        #{profileImage},
+        #{birth}
+        )
+    </insert>
+    <resultMap id="UserFriendEntityMap" type="com.hyuk.side.entities.UserFriendEntity">
+        <result property="friendEmail" column="email"/> <!-- friendEmail <- email -->
+        <result property="name" column="name"/>
+        <result property="profileImage" column="profileImage"/>
+        <result property="birth" column="birth"/>
+    </resultMap>
+
+    <select id="getFriendsByUserEmail" parameterType="String" resultMap="UserFriendEntityMap">
+        SELECT
+        u.email AS email,
+        u.name AS name,
+        u.phone,
+        u.birth,
+        u.profile_image AS profileImage,
+        f.status AS status
+        FROM `hyuktalk`.`friends` AS f
+        JOIN `hyuktalk`.`users` u ON f.friend_email = u.email
+        WHERE f.user_email = #{userEmail} AND f.status = 'APPROVED'
+    </select>
+
+    <select id="getFriendBirth" parameterType="String" resultType="com.hyuk.side.entities.UserFriendEntity">
+        SELECT u.email, u.name, u.phone, u.birth, u.profile_image AS profileImage
+        FROM `hyuktalk`.`friends` AS f
+        JOIN `hyuktalk`.`users` u ON f.friend_email = u.email
+        WHERE f.user_email = #{userEmail}
+        AND (
+        DATEDIFF(STR_TO_DATE(CONCAT(YEAR(CURDATE()), '-', DATE_FORMAT(u.birth, '%m-%d')), '%Y-%m-%d'), CURDATE()) BETWEEN 0 AND 7
+        OR
+        DATEDIFF(STR_TO_DATE(CONCAT(YEAR(CURDATE()) + 1, '-', DATE_FORMAT(u.birth, '%m-%d')), '%Y-%m-%d'), CURDATE()) BETWEEN 0 AND 7
+        );
+    </select>
+
+    <select id="checkIfUserExists" parameterType="string" resultType="int">
+        SELECT COUNT(*)
+        FROM `hyuktalk`.`users`
+        WHERE email = #{email}
+    </select>
+
+    <update id="updateProfileImage">
+        UPDATE `hyuktalk`.`users`
+        SET profile_image = #{imagePath}
+        WHERE email = #{email};
+    </update>
+    <update id="updateUserName">
+        UPDATE `hyuktalk`.`users`
+        SET name = #{newName}
+        WHERE email = #{email};
+    </update>
+
+
+
+
+
+
+
+</mapper>

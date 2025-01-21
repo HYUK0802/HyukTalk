@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/stylesheet/style.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/reset.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/variables.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/status-bar.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/nav-bar.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/screen-header.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/user-component.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/badge.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/dot.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/icon-row.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/alt-screen-header.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/no-mobile.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/login.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/friends.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/find.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/more.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/settings.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/chat.css}">
+    <title>Chats - Kokoa Clone</title>
+    <style>
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .modal-content {
+            background-color: #2c2c2c;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 500px;
+            color: white;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+                    /* 친구 리스트 */
+            .friend-list {
+                margin-top: 20px;
+                list-style: none;
+                padding: 0;
+            }
+
+            /* 각 친구 항목 */
+            .friend-item {
+                display: flex;
+                align-items: center;
+                margin-bottom: 15px;
+                padding: 10px;
+                border-bottom: 1px solid #ccc;
+            }
+
+            /* 동그란 프로필 이미지 */
+            .friend-avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                object-fit: cover;
+                margin-right: 15px; /* 이미지와 이름 사이 간격 */
+            }
+
+            /* 친구 정보 (이름과 체크박스를 포함하는 div) */
+            .friend-info {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 100%;
+            }
+
+            /* 친구 이름 스타일 */
+            .friend-name {
+                font-size: 16px;
+                margin-right: 15px; /* 이름과 체크박스 사이 간격 */
+            }
+
+            /* 체크박스 스타일 */
+            .friend-checkbox {
+                margin-left: 10px;
+            }
+
+            /* 버튼 스타일 */
+            .modal-footer {
+                text-align: right;
+                margin-top: 20px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                background-color: #38ba6c;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+            .btn:hover {
+                background-color: #2e9c58;
+            }
+    </style>
+</head>
+
+<body>
+<div class="status-bar">
+    <div class="status-bar__column">
+        <span>No Service</span>
+        <i class="fa-solid fa-wifi"></i>
+    </div>
+    <div class="status-bar__column">
+        <span>18:43</span>
+    </div>
+    <div class="status-bar__column">
+        <span>110%</span>
+        <i class="fa-solid fa-battery-full fa-lg"></i>
+        <i class="fa-solid fa-bolt"></i>
+    </div>
+</div>
+
+<header class="screen-header">
+    <h1 class="screen-header__title">채팅</h1>
+    <div class="screen-header__icons">
+        <span><i class="fa-solid fa-magnifying-glass fa-lg"></i></span>
+        <span><i class="fa-regular fa-comment-dots fa-lg" id="openModalBtn"></i></span>
+        <span><i class="fa-solid fa-gear fa-lg"></i></span>
+    </div>
+</header>
+
+<main class="main-screen">
+    <a th:href="@{/chat/{chatRoomId}(chatRoomId=${chat.chatRoomId})}" th:each="chat : ${chatRooms}">
+        <div class="user-component">
+            <div class="user-component__column">
+                <!-- 단체톡에서 한 개의 프로필 이미지만 표시 -->
+                <img th:src="@{${chat.profileImage}}" class="user-component__avatar">
+                <div class="user-component__text">
+                    <!-- 친구 이름 리스트를 쉼표로 연결하여 표시 -->
+                    <h4 class="user-component__title" th:text="${#strings.listJoin(chat.friendNames, ', ')}">Friend Names</h4>
+                    <h6 class="user-component__subtitle" th:text="${chat.lastMessage}">Last message preview</h6>
+                </div>
+            </div>
+            <div class="user-component__column">
+                <span class="user-component__time" th:text="${#dates.format(chat.lastUpdated, 'HH:mm')}">Time</span>
+                <div class="badge" th:if="${chat.unreadCount > 0}" th:text="${chat.unreadCount}"></div>
+            </div>
+        </div>
+    </a>
+</main>
+
+
+<!-- 친구 목록을 표시할 모달 -->
+<div id="friendModal" class="modal" style="display: flex;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>친구 선택</h3>
+            <span id="closeModalBtn" style="cursor: pointer;">&times;</span>
+        </div>
+        <form id="chatForm">
+            <ul class="friend-list">
+                <li class="friend-item" th:each="friend : ${friends}">
+                    <!-- 동그란 프로필 이미지 -->
+                    <img th:src="@{${friend.profileImage}}" class="friend-avatar" alt="프로필 이미지">
+                    <!-- 이름과 체크박스 -->
+                    <div class="friend-info">
+                        <label class="friend-name">
+                            <input type="checkbox" name="friends" th:value="${friend.friendEmail}" class="friend-checkbox">
+                            <span th:text="${friend.name}">친구 이름</span>
+                        </label>
+                    </div>
+                </li>
+            </ul>
+            <div class="modal-footer">
+                <button type="button" id="startChatBtn" class="btn">채팅 시작</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<nav class="nav">
+    <ul class="nav__list">
+        <li class="nav__btn">
+            <a class="nav__link" th:href="@{/friends}"><i class="fa-solid fa-user fa-2x"></i></a>
+        </li>
+        <li class="nav__btn">
+            <a class="nav__link" th:href="@{/chats}">
+                <span class="nav__notification badge"></span>
+                <i class="fa-solid fa-clover fa-2x"></i></a>
+        </li>
+        <li class="nav__btn">
+            <a class="nav__link" href="find.html"><i class="fa-solid fa-magnifying-glass fa-2x"></i></a>
+        </li>
+        <li class="nav__btn">
+            <a class="nav__link" href="more.html">
+                <div class="nav__dot dot"></div>
+                <i class="fa-solid fa-ellipsis fa-2x"></i>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<div id="no-mobile">
+    <span>Your screen is too big</span>
+</div>
+
+<script src="https://kit.fontawesome.com/5c3afda2cc.js" crossorigin="anonymous"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM fully loaded and parsed'); // 디버깅 메시지
+
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const friendModal = document.getElementById('friendModal');
+    const startChatBtn = document.getElementById('startChatBtn'); // startChatBtn을 DOMContentLoaded 내부에서 가져오기
+
+    // 모달 닫기
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', () => {
+            console.log('Closing modal...'); // 디버깅 메시지
+            friendModal.style.display = 'none';
+        });
+    } else {
+        console.error('closeModalBtn not found!');
+    }
+
+    // 채팅 시작 버튼 이벤트
+    if (startChatBtn) {
+        startChatBtn.addEventListener('click', async () => {
+            console.log('Start chat button clicked'); // 디버깅 메시지
+
+            const selectedFriends = Array.from(document.querySelectorAll('.friend-checkbox:checked'))
+                .map(checkbox => checkbox.value);
+
+            console.log('Selected friends:', selectedFriends); // 디버깅 메시지
+
+            if (selectedFriends.length === 1) {
+                // 1대1 채팅 요청
+                const friendEmail = selectedFriends[0];
+                try {
+                    const response = await fetch(`/chat/start?friendEmail=${encodeURIComponent(friendEmail)}`);
+                    if (response.ok) {
+                        console.log('1:1 Chat created, redirecting...'); // 디버깅 메시지
+                        window.location.href = response.url;
+                    } else {
+                        alert('1대1 채팅방 생성 실패');
+                    }
+                } catch (error) {
+                    console.error('Error creating 1:1 chat:', error);
+                }
+            } else if (selectedFriends.length > 1) {
+                // 그룹 채팅 요청
+                console.log('Selected friends:', selectedFriends);
+                const groupName = prompt("그룹 이름을 입력하세요:");
+                if (!groupName) {
+                    alert("그룹 이름은 필수입니다.");
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/chat/createGroup', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            groupName: groupName,
+                            selectedEmails: selectedFriends
+                        })
+                    });
+
+                    if (response.ok) {
+                        const chatRoomUrl = await response.text();
+                        console.log('Group chat created, redirecting...'); // 디버깅 메시지
+                        window.location.href = chatRoomUrl;
+                    } else {
+                        alert('그룹 채팅방 생성 실패');
+                    }
+                } catch (error) {
+                    console.error('Error creating group chat:', error);
+                }
+            } else {
+                alert("최소 1명 이상의 친구를 선택하세요.");
+            }
+        });
+    } else {
+        console.error('startChatBtn not found!');
+    }
+});
+
+
+
+
+</script>
+<script src="https://kit.fontawesome.com/5c3afda2cc.js" crossorigin="anonymous"></script>
+
+</body>
+
+</html>

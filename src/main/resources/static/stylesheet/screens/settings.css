@@ -1,0 +1,34 @@
+
+.setting-list{
+    border-bottom: var(--main-border);
+    padding-bottom: 10px;
+}
+.setting-list2{
+    padding-top : 10px;
+}
+.setting-list2 span{
+    font-weight: 100;
+}
+.settings__setting{
+    padding : 15px 10px;
+    border-bottom : 1px solid rgba(0, 0, 0, 0.1);
+    font-size : 17px;
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.settings__setting:hover{
+    background-color: var(--light-dark);
+    border-radius: 15px;
+    color : var(--green);
+}
+.settings__setting i{
+    margin-right: 20px;
+    font-size : 22px;
+    opacity: 0.9;
+}
+.settings__setting-column:last-child{
+    font-size: 15px;
+    opacity: 0.5;
+}

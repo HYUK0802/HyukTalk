@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hyuk.side.mappers.FriendMapper">
+
+
+    <insert id="insertFriend">
+        INSERT INTO `hyuktalk`.`friends` (user_email, friend_email, status, requested_at)
+        VALUES (#{userEmail}, #{friendEmail}, #{status}, NOW())
+        ON DUPLICATE KEY UPDATE status = #{status};
+    </insert>
+
+    <select id="checkIfFriendExists" parameterType="map" resultType="int">
+        SELECT COUNT(*)
+        FROM `hyuktalk`.`friends`
+        WHERE user_email = #{userEmail} AND friend_email = #{friendEmail}
+    </select>
+
+    <update id="updateFriendStatus" parameterType="map">
+        UPDATE `hyuktalk`.`friends`
+        SET status = #{status}
+        WHERE user_email = #{userEmail} AND friend_email = #{friendEmail}
+    </update>
+
+
+    <!-- SQL 쿼리 정의 -->
+    <select id="getPendingFriendRequests" parameterType="string" resultType="com.hyuk.side.entities.FriendRequestDTO">
+        SELECT
+        f.user_email AS requesterEmail,
+        u.name AS name,
+        u.profile_image AS profileImage,
+        f.requested_at AS requestedAt,
+        f.status AS status
+        FROM
+        `hyuktalk`.`friends` f
+        JOIN
+        `hyuktalk`.`users` u ON f.user_email = u.email
+        WHERE
+        f.friend_email = #{userEmail}
+        AND (f.status = 'PENDING' OR f.status = 'REQUEST');
+    </select>
+
+
+</mapper>

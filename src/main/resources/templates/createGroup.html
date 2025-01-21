@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/stylesheet/style.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/modal.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/li.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/reset.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/variables.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/status-bar.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/nav-bar.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/screen-header.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/user-component.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/badge.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/dot.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/icon-row.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/components/alt-screen-header.css}">
+    <link rel="stylesheet" th:href="@{/stylesheet/screens/chat.css}">
+
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center; /* 중앙 정렬 */
+            align-items: center; /* 세로 중앙 정렬 */
+            background-color: #1f1f1f;
+            color: #fff;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            width: 100%;
+            max-width: 750px;
+            height: 900px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* 그림자 추가 */
+            border-radius: 10px; /* 모서리 둥글게 */
+            background-color: #2c2c2c; /* 배경 색상 */
+            overflow: hidden; /* 경계 밖 콘텐츠 숨기기 */
+        }
+
+        .sidebar {
+            width: 60px;
+            background-color: #3a3a3a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .sidebar-item {
+            width: 40px;
+            height: 40px;
+            margin: 10px 0;
+            background-color: #4a4a4a;
+            border-radius: 50%;
+        }
+
+        .sidebar-item.active {
+            background-color: #fff;
+        }
+
+        .sidebar-item.settings {
+            margin-top: auto;
+        }
+
+        .main {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #2c2c2c;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            font-size: 24px;
+        }
+
+        .search-add button {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 18px;
+            margin-left: 10px;
+        }
+
+        .profile-section {
+            margin-bottom: 20px;
+        }
+
+        .profile {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .profile img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .updated-profiles,
+        .birthdays,
+        .favorites {
+            margin-bottom: 20px;
+        }
+
+        .profile-list {
+            display: flex;
+            gap: 10px;
+        }
+
+        .profile-list img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
+
+        .birthday-card {
+            background-color: #3a3a3a;
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .favorites ul {
+            list-style: none;
+        }
+
+        .favorites li {
+            margin: 5px 0;
+        }
+
+        footer {
+            text-align: right;
+        }
+
+        .player-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .friend-list {
+            margin-top: 20px;
+        }
+
+        .friend-list h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #fff; /* 제목 색상 */
+        }
+
+        .friend-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .friend-list__item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: #333; /* 항목 배경 색상 */
+            border-radius: 8px; /* 둥글게 처리 */
+            margin-bottom: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .friend-list__item:hover {
+            background-color: #444; /* 호버 효과 */
+        }
+
+        .friend-list__checkbox {
+            margin-right: 10px;
+        }
+
+        .friend-list__name {
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .friend-list__item label {
+            display: flex;
+            align-items: center;
+        }
+
+        .friend-list__checkbox:checked + .friend-list__name {
+            color: #38BA6C; /* 선택된 경우 텍스트 색상 */
+        }
+
+    </style>
+
+    <title>Create Group - Kokoa Clone</title>
+</head>
+
+<body>
+
+<div class="status-bar">
+    <div class="status-bar__column">
+        <span>No Service</span>
+        <i class="fa-solid fa-wifi"></i>
+    </div>
+    <div class="status-bar__column">
+        <span>18:43</span>
+    </div>
+    <div class="status-bar__column">
+        <span>110%</span>
+        <i class="fa-solid fa-battery-full fa-lg"></i>
+        <i class="fa-solid fa-bolt"></i>
+    </div>
+</div>
+
+<header class="screen-header">
+    <h1 class="screen-header__title">그룹 만들기</h1>
+    <div class="screen-header__icons">
+        <a th:href="@{/friends}"><i class="fa-solid fa-arrow-left fa-lg"></i></a>
+    </div>
+</header>
+
+<main class="main-screen">
+    <form id="createGroupForm" method="post" th:action="@{/group/create}">
+        <div class="form-group">
+            <label for="groupName">그룹 이름:</label>
+            <input type="text" id="groupName" name="groupName" placeholder="그룹 이름을 입력하세요" required>
+        </div>
+
+        <div class="form-group">
+            <label for="groupDescription">그룹 설명:</label>
+            <textarea id="groupDescription" name="groupDescription" placeholder="그룹 설명을 입력하세요"></textarea>
+        </div>
+
+        <div class="form-group">
+            <h3>친구 추가</h3>
+            <ul class="friend-list">
+                <!-- 친구 목록 반복 -->
+                <li th:each="friend : ${friends}" class="friend-list__item">
+                    <label class="friend-list__label">
+                        <input type="checkbox" name="members" th:value="${friend.userEmail}" class="friend-list__checkbox">
+                        <span th:text="${friend.name}" class="friend-list__name"></span>
+                    </label>
+                </li>
+            </ul>
+        </div>
+
+        <button type="submit" class="btn btn-primary">그룹 생성</button>
+    </form>
+</main>
+
+<script src="https://kit.fontawesome.com/5c3afda2cc.js" crossorigin="anonymous"></script>
+
+</body>
+
+</html>
