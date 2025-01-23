@@ -35,7 +35,7 @@ public class FileStorageService {
             Files.createDirectories(this.profileImageLocation);
             Files.createDirectories(this.chatImageLocation);
         } catch (IOException e) {
-            throw new RuntimeException("Could not create the directories for file storage.", e);
+            throw new RuntimeException("저장할 파일을 정해주세요.", e);
         }
     }
 
@@ -55,7 +55,7 @@ public class FileStorageService {
         try {
             // 파일 이름 검증
             if (fileName.contains("..")) {
-                throw new RuntimeException("Invalid path sequence in file name: " + fileName);
+                throw new RuntimeException("파일 이름: " + fileName);
             }
 
             // 저장 위치 및 파일 저장
@@ -65,7 +65,7 @@ public class FileStorageService {
             // 가상 경로 반환
             return urlPrefix + fileName;
         } catch (IOException e) {
-            throw new RuntimeException("Could not store file. Please try again!", e);
+            throw new RuntimeException("다시 시도해주세요.", e);
         }
     }
 

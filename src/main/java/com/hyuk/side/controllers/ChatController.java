@@ -59,25 +59,8 @@ public class ChatController {
         public void setSelectedEmails(List<String> selectedEmails) { this.selectedEmails = selectedEmails; }
     }
 
-    @GetMapping("/chats")
-    public ModelAndView chatList(HttpSession session) {
-        String userEmail = (String) session.getAttribute("userEmail");
 
-        if (userEmail == null) {
-            return new ModelAndView("redirect:/login");
-        }
 
-        // 대화방 목록 가져오기
-        List<ChatRoomsEntity> chatRooms = chatService.getChatRoomsByUser(userEmail);
-        List<UserEntity> friends = userService.getApprovedFriends(userEmail);
-        // 친구 그룹톡
-
-        // 데이터 전달
-        ModelAndView mav = new ModelAndView("chats");
-        mav.addObject("chatRooms", chatRooms);
-        mav.addObject("friends", friends);
-        return mav;
-    }
 
 
     @GetMapping("/chat/start")
@@ -117,10 +100,10 @@ public class ChatController {
 
         // 유효성 검사
         if (groupName == null || groupName.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("Group name is required.");
+            return ResponseEntity.badRequest().body("그룹이름을 정해주세요.");
         }
         if (selectedEmails == null || selectedEmails.isEmpty()) {
-            return ResponseEntity.badRequest().body("At least one member is required to create a group.");
+            return ResponseEntity.badRequest().body("한명 이상의 대화 상대를 정해주세요.");
         }
 
         // 그룹 생성
@@ -211,18 +194,18 @@ public class ChatController {
         // 세션에서 사용자 이메일 가져오기
         String senderEmail = (String) session.getAttribute("userEmail");
         if (senderEmail == null) {
-            return ResponseEntity.badRequest().body("Invalid user session.");
+            return ResponseEntity.badRequest().body("다시 로그인 해주세요");
         }
 
         // 메시지 내용 검증
         if (content == null || content.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body("Message content cannot be empty.");
+            return ResponseEntity.badRequest().body("메세지 오류입니다. 다시 시도해주세요");
         }
 
         // 메시지 저장
         messageService.saveMessage(chatRoomId, senderEmail, content, "TEXT", null);
 
-        return ResponseEntity.ok("Text message sent successfully.");
+        return ResponseEntity.ok("good");
     }
 
     @PostMapping("/chat/{chatRoomId}/upload")
@@ -235,11 +218,11 @@ public class ChatController {
         // 사용자 이메일 가져오기
         String senderEmail = (String) session.getAttribute("userEmail");
         if (senderEmail == null) {
-            return ResponseEntity.badRequest().body("Invalid user session.");
+            return ResponseEntity.badRequest().body("다시 로그인 해주세요.");
         }
 
         if (file.isEmpty()) {
-            return ResponseEntity.badRequest().body("No file uploaded.");
+            return ResponseEntity.badRequest().body("다시 시도해주세요.");
         }
 
         try {

@@ -93,10 +93,7 @@ public class ChatService {
         return chatMapper.getChatRoomsByUser(userEmail);
     }
     public void leaveChatRoom(String userEmail, String chatRoomId) {
-        System.out.println("Leaving chat room for user: " + userEmail + ", chatRoomId: " + chatRoomId);
-
         chatMapper.updateIsActive(userEmail, chatRoomId); // is_active 값을 0으로 설정
-        System.out.println("Chat room left successfully.");
     }
     public void enterChatRoom(String userEmail, String chatRoomId) {
         // 사용자가 이미 채팅방 멤버인지 확인하고 없으면 새로 추가 (필요한 경우)

@@ -38,14 +38,9 @@ public class FriendController {
 
         // 생일 일주일 내로 남은 친구들 불러오기
         List<UserEntity> friendsBirth = userService.getFriendBirth(userEmail);
-        // 친구 요청 목록 가져오기
-//        List<FriendRequestDTO> friendRequests = userService.getPendingRequests(userEmail);
 
         List<FriendRequestDTO> friendRequests = userService.getPendingRequests(userEmail);
-        // 로그로 데이터 확인
-        friendRequests.forEach(request ->
-                System.out.println("상태: " + request.getStatus() + ", 요청자: " + request.getRequesterEmail())
-        );
+
         List<UserEntity> friends = userService.getApprovedFriends(userEmail);
 
         // 요청 시간을 포맷팅
